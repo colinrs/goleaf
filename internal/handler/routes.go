@@ -4,6 +4,8 @@ package handler
 import (
 	"net/http"
 
+	biztag "github.com/colinrs/goleaf/internal/handler/biztag"
+	idgen "github.com/colinrs/goleaf/internal/handler/idgen"
 	"github.com/colinrs/goleaf/internal/svc"
 
 	"github.com/zeromicro/go-zero/rest"
@@ -13,10 +15,47 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 	server.AddRoutes(
 		[]rest.Route{
 			{
+				Method:  http.MethodPost,
+				Path:    "/biztag/create",
+				Handler: biztag.CreateBizTagHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodDelete,
+				Path:    "/biztag/deleted",
+				Handler: biztag.DeletedBizTagHandler(serverCtx),
+			},
+			{
 				Method:  http.MethodGet,
-				Path:    "/from/:name",
-				Handler: GoleafHandler(serverCtx),
+				Path:    "/biztag/get",
+				Handler: biztag.GetBizTagHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodGet,
+				Path:    "/biztag/list",
+				Handler: biztag.ListBizTagHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPut,
+				Path:    "/biztag/update",
+				Handler: biztag.UpdateBizTagHandler(serverCtx),
 			},
 		},
+		rest.WithPrefix("/api/v1"),
+	)
+
+	server.AddRoutes(
+		[]rest.Route{
+			{
+				Method:  http.MethodGet,
+				Path:    "/segment/get",
+				Handler: idgen.SegmentHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodGet,
+				Path:    "/snowflake/get",
+				Handler: idgen.SnowflakeHandler(serverCtx),
+			},
+		},
+		rest.WithPrefix("/api/v1"),
 	)
 }

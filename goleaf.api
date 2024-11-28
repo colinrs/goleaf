@@ -1,15 +1,111 @@
 syntax = "v1"
 
-type Request {
-	Name string `path:"name,options=you|me"`
+type SegmentRequest {
+	BizTag string `form:"biz_tag"`
+	Step   int64  `form:"step,optional,default=100"`
 }
 
-type Response {
-	Message string `json:"message"`
+type SegmentResponse {
+	Ids []int64 `json:"ids"`
 }
 
+type SnowflakeRequest {
+	BizTag string `form:"biz_tag"`
+	Step   int64  `form:"step,optional,default=100"`
+}
+
+type SnowflakeResponse {
+	Ids []int64 `json:"ids"`
+}
+
+@server (
+	group:  idgen
+	prefix: /api/v1
+)
 service goleaf-api {
-	@handler GoleafHandler
-	get /from/:name (Request) returns (Response)
+	@handler SegmentHandler
+	get /segment/get (SegmentRequest) returns (SegmentResponse)
+
+	@handler SnowflakeHandler
+	get /snowflake/get (SnowflakeRequest) returns (SnowflakeResponse)
+}
+
+type CreateBizTagRequest {
+	BizTag      string `json:"biz_tag"`
+	Description string `json:"description"` // 描述
+	MaxID       uint64 `json:"max_id"`
+	Step        uint64 `json:"step,optional,default=100"`
+}
+
+type CreateBizTagResponse {
+	Id int64 `json:"id"`
+}
+
+type UpdateBizTageRequest {
+	Id          int64  `json:"id"`
+	Description string `json:"description,optional"` // 描述
+	Step        int64  `json:"step,optional,default=100"`
+}
+
+type UpdateBizTagResponse {
+	BizTag      string `json:"biz_tag"`
+	Description string `json:"description"` // 描述
+	MaxID       uint64 `json:"max_id"`
+	Step        uint64 `json:"step,optional,default=100"`
+}
+
+type GetBizTageRequest {
+	Id int64 `form:"id"`
+}
+
+type GetBizTagResponse {
+	BizTag      string `json:"biz_tag"`
+	Description string `json:"description"` // 描述
+	MaxID       uint64 `json:"max_id"`
+	Step        uint64 `json:"step,optional,default=100"`
+}
+
+type ListBizTageRequest {
+	Page     int `form:"page,optional,default=1"`
+	PageSize int `form:"page_size,optional,default=10"`
+}
+
+type BizTagData {
+	BizTag      string `json:"biz_tag"`
+	Description string `json:"description"` // 描述
+	MaxID       uint64 `json:"max_id"`
+	Step        uint64 `json:"step,optional,default=100"`
+}
+
+type ListBizTagResponse {
+	Total int64         `json:"total"`
+	List  []*BizTagData `json:"list"`
+}
+
+type DeletedBizTageRequest {
+	Id int64 `json:"id"`
+}
+
+type DeletedBizTagResponse {}
+
+@server (
+	group:  biztag
+	prefix: /api/v1
+)
+service goleaf-api {
+	@handler CreateBizTagHandler
+	post /biztag/create (CreateBizTagRequest) returns (CreateBizTagResponse)
+
+	@handler UpdateBizTagHandler
+	put /biztag/update (UpdateBizTageRequest) returns (UpdateBizTagResponse)
+
+	@handler GetBizTagHandler
+	get /biztag/get (GetBizTageRequest) returns (GetBizTagResponse)
+
+	@handler ListBizTagHandler
+	get /biztag/list (ListBizTageRequest) returns (ListBizTagResponse)
+
+	@handler DeletedBizTagHandler
+	delete /biztag/deleted (DeletedBizTageRequest) returns (DeletedBizTagResponse)
 }
 
