@@ -2,6 +2,7 @@ package idgen
 
 import (
 	"context"
+	"github.com/colinrs/goleaf/internal/manager"
 
 	"github.com/colinrs/goleaf/internal/svc"
 	"github.com/colinrs/goleaf/internal/types"
@@ -11,8 +12,9 @@ import (
 
 type SegmentLogic struct {
 	logx.Logger
-	ctx    context.Context
-	svcCtx *svc.ServiceContext
+	ctx            context.Context
+	svcCtx         *svc.ServiceContext
+	segmentManager manager.SegmentManager
 }
 
 func NewSegmentLogic(ctx context.Context, svcCtx *svc.ServiceContext) *SegmentLogic {
@@ -20,11 +22,11 @@ func NewSegmentLogic(ctx context.Context, svcCtx *svc.ServiceContext) *SegmentLo
 		Logger: logx.WithContext(ctx),
 		ctx:    ctx,
 		svcCtx: svcCtx,
+
+		segmentManager: manager.NewSegmentManager(ctx, svcCtx),
 	}
 }
 
 func (l *SegmentLogic) Segment(req *types.SegmentRequest) (resp *types.SegmentResponse, err error) {
-	// todo: add your logic here and delete this line
-
-	return
+	return l.segmentManager.Segment(req)
 }

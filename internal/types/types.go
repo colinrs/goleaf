@@ -51,7 +51,6 @@ type ListBizTageRequest struct {
 
 type SegmentRequest struct {
 	BizTag string `form:"biz_tag"`
-	Step   int64  `form:"step,optional,default=100"`
 }
 
 type SegmentResponse struct {

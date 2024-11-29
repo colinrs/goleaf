@@ -175,14 +175,6 @@
             "in": "query",
             "required": true,
             "type": "string"
-          },
-          {
-            "name": "step",
-            "in": "query",
-            "required": false,
-            "type": "integer",
-            "format": "int64",
-            "default": "100"
           }
         ],
         "tags": [
@@ -405,11 +397,6 @@
       "properties": {
         "biz_tag": {
           "type": "string"
-        },
-        "step": {
-          "type": "integer",
-          "format": "int64",
-          "default": "100"
         }
       },
       "title": "SegmentRequest",

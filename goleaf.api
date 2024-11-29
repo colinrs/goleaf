@@ -2,7 +2,6 @@ syntax = "v1"
 
 type SegmentRequest {
 	BizTag string `form:"biz_tag"`
-	Step   int64  `form:"step,optional,default=100"`
 }
 
 type SegmentResponse {

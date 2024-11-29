@@ -17,7 +17,6 @@ func SegmentHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 			httpy.ResultCtx(r, w, nil, err)
 			return
 		}
-
 		l := idgen.NewSegmentLogic(r.Context(), svcCtx)
 		resp, err := l.Segment(&req)
 		httpy.ResultCtx(r, w, resp, err)
