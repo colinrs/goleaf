@@ -6,7 +6,9 @@ type SegmentRequest {
 }
 
 type SegmentResponse {
-	Ids []int64 `json:"ids"`
+	MinID int64 `json:"min_id"`
+	MaxID int64 `json:"max_id"`
+	Step  int64 `json:"step"`
 }
 
 type SnowflakeRequest {
@@ -15,7 +17,8 @@ type SnowflakeRequest {
 }
 
 type SnowflakeResponse {
-	Ids []int64 `json:"ids"`
+	Ids  []int64 `json:"ids"`
+	Step int64   `json:"step"`
 }
 
 @server (
@@ -33,36 +36,37 @@ service goleaf-api {
 type CreateBizTagRequest {
 	BizTag      string `json:"biz_tag"`
 	Description string `json:"description"` // 描述
-	MaxID       uint64 `json:"max_id"`
-	Step        uint64 `json:"step,optional,default=100"`
+	MaxID       int64  `json:"max_id"`
+	Step        int64  `json:"step,optional,default=100"`
 }
 
 type CreateBizTagResponse {
-	Id int64 `json:"id"`
+	Id uint `json:"id"`
 }
 
 type UpdateBizTageRequest {
-	Id          int64  `json:"id"`
+	Id          uint   `json:"id"`
 	Description string `json:"description,optional"` // 描述
-	Step        int64  `json:"step,optional,default=100"`
+	Step        int64  `json:"step,optional"`
 }
 
 type UpdateBizTagResponse {
 	BizTag      string `json:"biz_tag"`
 	Description string `json:"description"` // 描述
-	MaxID       uint64 `json:"max_id"`
-	Step        uint64 `json:"step,optional,default=100"`
+	MaxID       int64  `json:"max_id"`
+	Step        int64  `json:"step"`
 }
 
 type GetBizTageRequest {
-	Id int64 `form:"id"`
+	Id uint `form:"id"`
 }
 
 type GetBizTagResponse {
+	Id          uint   `json:"id"`
 	BizTag      string `json:"biz_tag"`
 	Description string `json:"description"` // 描述
-	MaxID       uint64 `json:"max_id"`
-	Step        uint64 `json:"step,optional,default=100"`
+	MaxID       int64  `json:"max_id"`
+	Step        int64  `json:"step"`
 }
 
 type ListBizTageRequest {
@@ -71,10 +75,11 @@ type ListBizTageRequest {
 }
 
 type BizTagData {
+	Id          uint   `json:"id"`
 	BizTag      string `json:"biz_tag"`
 	Description string `json:"description"` // 描述
-	MaxID       uint64 `json:"max_id"`
-	Step        uint64 `json:"step,optional,default=100"`
+	MaxID       int64  `json:"max_id"`
+	Step        int64  `json:"step"`
 }
 
 type ListBizTagResponse {
@@ -83,7 +88,7 @@ type ListBizTagResponse {
 }
 
 type DeletedBizTageRequest {
-	Id int64 `json:"id"`
+	Id uint `json:"id"`
 }
 
 type DeletedBizTagResponse {}

@@ -3,8 +3,10 @@ package biztag
 import (
 	"context"
 
+	"github.com/colinrs/goleaf/internal/manager"
 	"github.com/colinrs/goleaf/internal/svc"
 	"github.com/colinrs/goleaf/internal/types"
+	"github.com/colinrs/goleaf/pkg/utils"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -13,6 +15,8 @@ type ListBizTagLogic struct {
 	logx.Logger
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
+
+	bizTagManager manager.BizTagManager
 }
 
 func NewListBizTagLogic(ctx context.Context, svcCtx *svc.ServiceContext) *ListBizTagLogic {
@@ -20,11 +24,12 @@ func NewListBizTagLogic(ctx context.Context, svcCtx *svc.ServiceContext) *ListBi
 		Logger: logx.WithContext(ctx),
 		ctx:    ctx,
 		svcCtx: svcCtx,
+
+		bizTagManager: manager.NewBizTagManager(ctx, svcCtx),
 	}
 }
 
 func (l *ListBizTagLogic) ListBizTag(req *types.ListBizTageRequest) (resp *types.ListBizTagResponse, err error) {
-	// todo: add your logic here and delete this line
-
-	return
+	offset, limit := utils.PageToOffsetLimit(req.Page, req.PageSize)
+	return l.bizTagManager.GetBizTagList(offset, limit)
 }

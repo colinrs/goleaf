@@ -2,6 +2,7 @@ package biztag
 
 import (
 	"context"
+	"github.com/colinrs/goleaf/internal/manager"
 
 	"github.com/colinrs/goleaf/internal/svc"
 	"github.com/colinrs/goleaf/internal/types"
@@ -11,20 +12,20 @@ import (
 
 type DeletedBizTagLogic struct {
 	logx.Logger
-	ctx    context.Context
-	svcCtx *svc.ServiceContext
+	ctx           context.Context
+	svcCtx        *svc.ServiceContext
+	bizTagManager manager.BizTagManager
 }
 
 func NewDeletedBizTagLogic(ctx context.Context, svcCtx *svc.ServiceContext) *DeletedBizTagLogic {
 	return &DeletedBizTagLogic{
-		Logger: logx.WithContext(ctx),
-		ctx:    ctx,
-		svcCtx: svcCtx,
+		Logger:        logx.WithContext(ctx),
+		ctx:           ctx,
+		svcCtx:        svcCtx,
+		bizTagManager: manager.NewBizTagManager(ctx, svcCtx),
 	}
 }
 
 func (l *DeletedBizTagLogic) DeletedBizTag(req *types.DeletedBizTageRequest) (resp *types.DeletedBizTagResponse, err error) {
-	// todo: add your logic here and delete this line
-
-	return
+	return l.bizTagManager.DeleteBizTag(req)
 }

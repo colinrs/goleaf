@@ -1,6 +1,7 @@
 package biztag
 
 import (
+	"github.com/colinrs/goleaf/pkg/httpy"
 	"net/http"
 
 	"github.com/colinrs/goleaf/internal/logic/biztag"
@@ -13,16 +14,12 @@ func ListBizTagHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req types.ListBizTageRequest
 		if err := httpx.Parse(r, &req); err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
+			httpy.ResultCtx(r, w, nil, err)
 			return
 		}
 
 		l := biztag.NewListBizTagLogic(r.Context(), svcCtx)
 		resp, err := l.ListBizTag(&req)
-		if err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
-		} else {
-			httpx.OkJsonCtx(r.Context(), w, resp)
-		}
+		httpy.ResultCtx(r, w, resp, err)
 	}
 }

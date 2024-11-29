@@ -2,39 +2,41 @@
 package types
 
 type BizTagData struct {
+	Id          uint   `json:"id"`
 	BizTag      string `json:"biz_tag"`
 	Description string `json:"description"` // 描述
-	MaxID       uint64 `json:"max_id"`
-	Step        uint64 `json:"step,optional,default=100"`
+	MaxID       int64  `json:"max_id"`
+	Step        int64  `json:"step"`
 }
 
 type CreateBizTagRequest struct {
 	BizTag      string `json:"biz_tag"`
 	Description string `json:"description"` // 描述
-	MaxID       uint64 `json:"max_id"`
-	Step        uint64 `json:"step,optional,default=100"`
+	MaxID       int64  `json:"max_id"`
+	Step        int64  `json:"step,optional,default=100"`
 }
 
 type CreateBizTagResponse struct {
-	Id int64 `json:"id"`
+	Id uint `json:"id"`
 }
 
 type DeletedBizTagResponse struct {
 }
 
 type DeletedBizTageRequest struct {
-	Id int64 `json:"id"`
+	Id uint `json:"id"`
 }
 
 type GetBizTagResponse struct {
+	Id          uint   `json:"id"`
 	BizTag      string `json:"biz_tag"`
 	Description string `json:"description"` // 描述
-	MaxID       uint64 `json:"max_id"`
-	Step        uint64 `json:"step,optional,default=100"`
+	MaxID       int64  `json:"max_id"`
+	Step        int64  `json:"step"`
 }
 
 type GetBizTageRequest struct {
-	Id int64 `form:"id"`
+	Id uint `form:"id"`
 }
 
 type ListBizTagResponse struct {
@@ -53,7 +55,9 @@ type SegmentRequest struct {
 }
 
 type SegmentResponse struct {
-	Ids []int64 `json:"ids"`
+	MinID int64 `json:"min_id"`
+	MaxID int64 `json:"max_id"`
+	Step  int64 `json:"step"`
 }
 
 type SnowflakeRequest struct {
@@ -62,18 +66,19 @@ type SnowflakeRequest struct {
 }
 
 type SnowflakeResponse struct {
-	Ids []int64 `json:"ids"`
+	Ids  []int64 `json:"ids"`
+	Step int64   `json:"step"`
 }
 
 type UpdateBizTagResponse struct {
 	BizTag      string `json:"biz_tag"`
 	Description string `json:"description"` // 描述
-	MaxID       uint64 `json:"max_id"`
-	Step        uint64 `json:"step,optional,default=100"`
+	MaxID       int64  `json:"max_id"`
+	Step        int64  `json:"step"`
 }
 
 type UpdateBizTageRequest struct {
-	Id          int64  `json:"id"`
+	Id          uint   `json:"id"`
 	Description string `json:"description,optional"` // 描述
-	Step        int64  `json:"step,optional,default=100"`
+	Step        int64  `json:"step,optional"`
 }

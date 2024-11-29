@@ -3,6 +3,7 @@ package biztag
 import (
 	"context"
 
+	"github.com/colinrs/goleaf/internal/manager"
 	"github.com/colinrs/goleaf/internal/svc"
 	"github.com/colinrs/goleaf/internal/types"
 
@@ -13,6 +14,8 @@ type GetBizTagLogic struct {
 	logx.Logger
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
+
+	bizTagManager manager.BizTagManager
 }
 
 func NewGetBizTagLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetBizTagLogic {
@@ -20,11 +23,22 @@ func NewGetBizTagLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetBizT
 		Logger: logx.WithContext(ctx),
 		ctx:    ctx,
 		svcCtx: svcCtx,
+
+		bizTagManager: manager.NewBizTagManager(ctx, svcCtx),
 	}
 }
 
 func (l *GetBizTagLogic) GetBizTag(req *types.GetBizTageRequest) (resp *types.GetBizTagResponse, err error) {
-	// todo: add your logic here and delete this line
-
+	bizTagData, err := l.bizTagManager.GetBizTagById(req.Id)
+	if err != nil {
+		return
+	}
+	resp = &types.GetBizTagResponse{
+		Id:          bizTagData.Id,
+		BizTag:      bizTagData.BizTag,
+		Description: bizTagData.Description,
+		MaxID:       bizTagData.MaxID,
+		Step:        bizTagData.Step,
+	}
 	return
 }

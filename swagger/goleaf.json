@@ -84,7 +84,7 @@
             "in": "query",
             "required": true,
             "type": "integer",
-            "format": "int64"
+            "format": "uint32"
           }
         ],
         "tags": [
@@ -233,6 +233,10 @@
     "BizTagData": {
       "type": "object",
       "properties": {
+        "id": {
+          "type": "integer",
+          "format": "uint32"
+        },
         "biz_tag": {
           "type": "string"
         },
@@ -246,15 +250,16 @@
         },
         "step": {
           "type": "integer",
-          "format": "int64",
-          "default": "100"
+          "format": "int64"
         }
       },
       "title": "BizTagData",
       "required": [
+        "id",
         "biz_tag",
         "description",
-        "max_id"
+        "max_id",
+        "step"
       ]
     },
     "CreateBizTagRequest": {
@@ -289,7 +294,7 @@
       "properties": {
         "id": {
           "type": "integer",
-          "format": "int64"
+          "format": "uint32"
         }
       },
       "title": "CreateBizTagResponse",
@@ -306,7 +311,7 @@
       "properties": {
         "id": {
           "type": "integer",
-          "format": "int64"
+          "format": "uint32"
         }
       },
       "title": "DeletedBizTageRequest",
@@ -317,6 +322,10 @@
     "GetBizTagResponse": {
       "type": "object",
       "properties": {
+        "id": {
+          "type": "integer",
+          "format": "uint32"
+        },
         "biz_tag": {
           "type": "string"
         },
@@ -330,15 +339,16 @@
         },
         "step": {
           "type": "integer",
-          "format": "int64",
-          "default": "100"
+          "format": "int64"
         }
       },
       "title": "GetBizTagResponse",
       "required": [
+        "id",
         "biz_tag",
         "description",
-        "max_id"
+        "max_id",
+        "step"
       ]
     },
     "GetBizTageRequest": {
@@ -346,7 +356,7 @@
       "properties": {
         "id": {
           "type": "integer",
-          "format": "int64"
+          "format": "uint32"
         }
       },
       "title": "GetBizTageRequest",
@@ -410,17 +420,24 @@
     "SegmentResponse": {
       "type": "object",
       "properties": {
-        "ids": {
-          "type": "array",
-          "items": {
-            "type": "integer",
-            "format": "int64"
-          }
+        "min_id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "max_id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "step": {
+          "type": "integer",
+          "format": "int64"
         }
       },
       "title": "SegmentResponse",
       "required": [
-        "ids"
+        "min_id",
+        "max_id",
+        "step"
       ]
     },
     "SnowflakeRequest": {
@@ -449,11 +466,16 @@
             "type": "integer",
             "format": "int64"
           }
+        },
+        "step": {
+          "type": "integer",
+          "format": "int64"
         }
       },
       "title": "SnowflakeResponse",
       "required": [
-        "ids"
+        "ids",
+        "step"
       ]
     },
     "UpdateBizTagResponse": {
@@ -472,15 +494,15 @@
         },
         "step": {
           "type": "integer",
-          "format": "int64",
-          "default": "100"
+          "format": "int64"
         }
       },
       "title": "UpdateBizTagResponse",
       "required": [
         "biz_tag",
         "description",
-        "max_id"
+        "max_id",
+        "step"
       ]
     },
     "UpdateBizTageRequest": {
@@ -488,7 +510,7 @@
       "properties": {
         "id": {
           "type": "integer",
-          "format": "int64"
+          "format": "uint32"
         },
         "description": {
           "type": "string",
@@ -496,8 +518,7 @@
         },
         "step": {
           "type": "integer",
-          "format": "int64",
-          "default": "100"
+          "format": "int64"
         }
       },
       "title": "UpdateBizTageRequest",

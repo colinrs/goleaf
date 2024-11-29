@@ -1,6 +1,7 @@
 package svc
 
 import (
+	"context"
 	"github.com/colinrs/goleaf/internal/config"
 	"github.com/colinrs/goleaf/internal/infra"
 
@@ -32,4 +33,9 @@ func initDB(c config.Config) *gorm.DB {
 
 func initRedis(c config.Config) *redis.Redis {
 	return redis.MustNewRedis(c.Redis)
+}
+
+func (s *ServiceContext) GetDB(ctx context.Context) *gorm.DB {
+	return s.DB.WithContext(ctx)
+
 }
