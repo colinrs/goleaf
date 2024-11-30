@@ -20,6 +20,18 @@ type CreateBizTagResponse struct {
 	Id uint `json:"id"`
 }
 
+type DecodeSnowflakeRequest struct {
+	Id int64 `form:"id"`
+}
+
+type DecodeSnowflakeResponse struct {
+	NodeID    int    `json:"node_id"`
+	Epoch     int64  `json:"epoch"`
+	Time      string `json:"time"`
+	Timestamp int64  `json:"timestamp"`
+	Sequence  int    `json:"sequence"`
+}
+
 type DeletedBizTagResponse struct {
 }
 
@@ -60,13 +72,12 @@ type SegmentResponse struct {
 }
 
 type SnowflakeRequest struct {
-	BizTag string `form:"biz_tag"`
-	Step   int64  `form:"step,optional,default=100"`
+	Step int64 `form:"step,optional,default=50"`
 }
 
 type SnowflakeResponse struct {
-	Ids  []int64 `json:"ids"`
-	Step int64   `json:"step"`
+	Total int64   `json:"total"`
+	List  []int64 `json:"list"`
 }
 
 type UpdateBizTagResponse struct {

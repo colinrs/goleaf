@@ -10,4 +10,5 @@ var (
 	ErrDatabase        = &Err{HTTPCode: http.StatusOK, Code: 20002, Msg: "Database error."}
 	BizTagAlreadyExist = &Err{HTTPCode: http.StatusOK, Code: 20003, Msg: "业务已存在"}
 	BizTagNotExist     = &Err{HTTPCode: http.StatusOK, Code: 20004, Msg: "业务不存在"}
+	EtcdKeyNotExist    = &Err{HTTPCode: http.StatusOK, Code: 20005, Msg: "Etcd key 不存在"}
 )

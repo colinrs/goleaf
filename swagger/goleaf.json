@@ -185,6 +185,34 @@
         ]
       }
     },
+    "/api/v1/snowflake/decode": {
+      "get": {
+        "operationId": "DecodeSnowflakeHandler",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/DecodeSnowflakeResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "idgen"
+        ],
+        "consumes": [
+          "multipart/form-data"
+        ]
+      }
+    },
     "/api/v1/snowflake/get": {
       "get": {
         "operationId": "SnowflakeHandler",
@@ -198,18 +226,12 @@
         },
         "parameters": [
           {
-            "name": "biz_tag",
-            "in": "query",
-            "required": true,
-            "type": "string"
-          },
-          {
             "name": "step",
             "in": "query",
             "required": false,
             "type": "integer",
             "format": "int64",
-            "default": "100"
+            "default": "50"
           }
         ],
         "tags": [
@@ -292,6 +314,51 @@
       "title": "CreateBizTagResponse",
       "required": [
         "id"
+      ]
+    },
+    "DecodeSnowflakeRequest": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "title": "DecodeSnowflakeRequest",
+      "required": [
+        "id"
+      ]
+    },
+    "DecodeSnowflakeResponse": {
+      "type": "object",
+      "properties": {
+        "node_id": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "epoch": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "time": {
+          "type": "string"
+        },
+        "timestamp": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "sequence": {
+          "type": "integer",
+          "format": "int32"
+        }
+      },
+      "title": "DecodeSnowflakeResponse",
+      "required": [
+        "node_id",
+        "epoch",
+        "time",
+        "timestamp",
+        "sequence"
       ]
     },
     "DeletedBizTagResponse": {
@@ -430,39 +497,33 @@
     "SnowflakeRequest": {
       "type": "object",
       "properties": {
-        "biz_tag": {
-          "type": "string"
-        },
         "step": {
           "type": "integer",
           "format": "int64",
-          "default": "100"
+          "default": "50"
         }
       },
-      "title": "SnowflakeRequest",
-      "required": [
-        "biz_tag"
-      ]
+      "title": "SnowflakeRequest"
     },
     "SnowflakeResponse": {
       "type": "object",
       "properties": {
-        "ids": {
+        "total": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "list": {
           "type": "array",
           "items": {
             "type": "integer",
             "format": "int64"
           }
-        },
-        "step": {
-          "type": "integer",
-          "format": "int64"
         }
       },
       "title": "SnowflakeResponse",
       "required": [
-        "ids",
-        "step"
+        "total",
+        "list"
       ]
     },
     "UpdateBizTagResponse": {

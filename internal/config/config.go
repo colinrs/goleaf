@@ -11,4 +11,9 @@ type Config struct {
 
 	DataBase *infra.DBConfig `json:"Database" yaml:"Database"`
 	Redis    redis.RedisConf `json:"Redis" yaml:"Redis"`
+	Etcd     EtcdConfig
+}
+
+type EtcdConfig struct {
+	Endpoints []string `json:"Endpoints" yaml:"Endpoints"`
 }

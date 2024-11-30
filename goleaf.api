@@ -11,13 +11,24 @@ type SegmentResponse {
 }
 
 type SnowflakeRequest {
-	BizTag string `form:"biz_tag"`
-	Step   int64  `form:"step,optional,default=100"`
+	Step int64 `form:"step,optional,default=50"`
 }
 
 type SnowflakeResponse {
-	Ids  []int64 `json:"ids"`
-	Step int64   `json:"step"`
+	Total int64   `json:"total"`
+	List  []int64 `json:"list"`
+}
+
+type DecodeSnowflakeRequest {
+	Id int64 `form:"id"`
+}
+
+type DecodeSnowflakeResponse {
+	NodeID    int    `json:"node_id"`
+	Epoch     int64  `json:"epoch"`
+	Time      string `json:"time"`
+	Timestamp int64  `json:"timestamp"`
+	Sequence  int    `json:"sequence"`
 }
 
 @server (
@@ -30,6 +41,9 @@ service goleaf-api {
 
 	@handler SnowflakeHandler
 	get /snowflake/get (SnowflakeRequest) returns (SnowflakeResponse)
+
+	@handler DecodeSnowflakeHandler
+	get /snowflake/decode (DecodeSnowflakeRequest) returns (DecodeSnowflakeResponse)
 }
 
 type CreateBizTagRequest {

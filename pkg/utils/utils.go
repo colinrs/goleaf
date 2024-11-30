@@ -2,7 +2,9 @@ package utils
 
 import (
 	"crypto/rand"
+	"fmt"
 	"math/big"
+	"net"
 )
 
 // 生成随机字符串，长度由用户指定
@@ -53,4 +55,16 @@ func PageToOffsetLimit(page, pageSize int) (int, int) {
 	offset := (page - 1) * pageSize
 	limit := pageSize
 	return offset, limit
+}
+
+func GetOutboundIP() net.IP {
+	conn, err := net.Dial("udp", "8.8.8.8:80")
+	if err != nil {
+		fmt.Println("Error:", err)
+		return nil
+	}
+	defer conn.Close()
+
+	localAddr := conn.LocalAddr().(*net.UDPAddr)
+	return localAddr.IP
 }

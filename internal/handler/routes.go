@@ -52,6 +52,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			},
 			{
 				Method:  http.MethodGet,
+				Path:    "/snowflake/decode",
+				Handler: idgen.DecodeSnowflakeHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodGet,
 				Path:    "/snowflake/get",
 				Handler: idgen.SnowflakeHandler(serverCtx),
 			},
