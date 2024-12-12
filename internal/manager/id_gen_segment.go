@@ -2,6 +2,8 @@ package manager
 
 import (
 	"context"
+	"github.com/colinrs/goleaf/internal/model"
+	"github.com/zeromicro/go-zero/core/logx"
 
 	"github.com/colinrs/goleaf/internal/repo"
 	"github.com/colinrs/goleaf/internal/svc"
@@ -35,9 +37,14 @@ func NewSegmentManager(ctx context.Context, svcCtx *svc.ServiceContext) SegmentM
 }
 
 func (l *segmentManager) Segment(req *types.SegmentRequest) (*types.SegmentResponse, error) {
-	leafAlloc, _ := l.bizTagRepo.GetBizTagByName(l.db, req.BizTag)
-	if leafAlloc == nil {
-		return nil, code.BizTagNotExist
+	leafAlloc := &model.LeafAlloc{}
+	err := l.svcCtx.LocalCache.Get(l.ctx, req.BizTag, leafAlloc)
+	if err != nil {
+		logx.WithContext(l.ctx).Errorf("biz tag %s not exist from local cache", req.BizTag)
+		leafAlloc, _ = l.bizTagRepo.GetBizTagByName(l.db, req.BizTag)
+		if leafAlloc == nil {
+			return nil, code.BizTagNotExist
+		}
 	}
 	maxID := l.idGenRepo.GetSegmentMaxID(l.db, req.BizTag)
 	if maxID == 0 {

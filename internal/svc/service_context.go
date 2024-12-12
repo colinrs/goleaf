@@ -4,13 +4,16 @@ import (
 	"context"
 	"errors"
 	"fmt"
-
 	"github.com/colinrs/goleaf/internal/config"
 	"github.com/colinrs/goleaf/internal/infra"
+	"github.com/colinrs/goleaf/internal/model"
+	"github.com/colinrs/goleaf/pkg/cache"
 	"github.com/colinrs/goleaf/pkg/client"
+	"github.com/colinrs/goleaf/pkg/codec"
 	"github.com/colinrs/goleaf/pkg/snowflake"
 	"github.com/colinrs/goleaf/pkg/utils"
 
+	"github.com/robfig/cron/v3"
 	"github.com/spf13/cast"
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/stores/redis"
@@ -22,6 +25,7 @@ type ServiceContext struct {
 	DB          *gorm.DB
 	RedisClient *redis.Redis
 	EtcdClient  client.EtcdClient
+	LocalCache  cache.Cache
 
 	snowflake snowflake.Snowflake
 }
@@ -34,6 +38,8 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		EtcdClient:  initEtcdClient(c),
 	}
 	s.snowflake = s.initSnowflake(c)
+	s.InitLocalCache()
+	s.SyncLocalCache()
 	return s
 }
 
@@ -88,4 +94,53 @@ func (s *ServiceContext) GetDB(ctx context.Context) *gorm.DB {
 
 func (s *ServiceContext) GetSnowflake() snowflake.Snowflake {
 	return s.snowflake
+}
+
+func (s *ServiceContext) InitLocalCache() {
+	memCache, err := cache.NewRistrettoCache(cache.RistrettoCacheConfig{
+		NumCounters: 100000,
+		Capacity:    1000000,
+		CostFunc:    func(value interface{}) int64 { return 1 },
+	}, codec.NewSonicCodec())
+	logx.Must(err)
+	s.LocalCache = memCache
+	return
+}
+
+func (s *ServiceContext) SyncLocalCache() {
+	var bizTags []*model.LeafAlloc
+	db := s.DB.WithContext(context.Background())
+	syncCache := func(bizTags []*model.LeafAlloc) {
+		_ = s.LocalCache.Flush(context.Background())
+		count := 0
+		for _, bizTag := range bizTags {
+			err := s.LocalCache.Set(context.Background(), bizTag.BizTag.String, bizTag, 0)
+			if err != nil {
+				logx.Errorf("bizTag:%s,sync local cache err:%s", bizTag.BizTag.String, err.Error())
+				continue
+			}
+			logx.Infof("bizTag:%s,sync local cache success", bizTag.BizTag.String)
+			count++
+		}
+		logx.Infof("sync local cache success count:%d, all:%d", count, len(bizTags))
+	}
+	err := db.Find(&bizTags).Error
+	logx.Must(err)
+	syncCache(bizTags)
+	localCron := cron.New()
+	entryID, err := localCron.AddFunc("@every 5m", func() {
+		logx.Infof("sync local cache")
+		db = s.DB.WithContext(context.Background())
+		bizTags = []*model.LeafAlloc{}
+		err = db.Find(&bizTags).Error
+		if err != nil {
+			logx.Errorf("sync local cache err:%s", err.Error())
+			return
+		}
+		syncCache(bizTags)
+	})
+	logx.Must(err)
+	localCron.Start()
+	logx.Infof("entryID:%d", entryID)
+	return
 }
