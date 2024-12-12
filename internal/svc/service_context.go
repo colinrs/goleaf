@@ -12,20 +12,21 @@ import (
 	"github.com/colinrs/goleaf/pkg/codec"
 	"github.com/colinrs/goleaf/pkg/snowflake"
 	"github.com/colinrs/goleaf/pkg/utils"
-
 	"github.com/robfig/cron/v3"
 	"github.com/spf13/cast"
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/stores/redis"
 	"gorm.io/gorm"
+	"sync"
 )
 
 type ServiceContext struct {
-	Config      config.Config
-	DB          *gorm.DB
-	RedisClient *redis.Redis
-	EtcdClient  client.EtcdClient
-	LocalCache  cache.Cache
+	Config         config.Config
+	DB             *gorm.DB
+	RedisClient    *redis.Redis
+	EtcdClient     client.EtcdClient
+	LocalCache     cache.Cache
+	LocalCacheLock sync.RWMutex
 
 	snowflake snowflake.Snowflake
 }
@@ -97,24 +98,37 @@ func (s *ServiceContext) GetSnowflake() snowflake.Snowflake {
 }
 
 func (s *ServiceContext) InitLocalCache() {
+	memCache, err := newLocalCache()
+	logx.Must(err)
+	s.LocalCache = memCache
+	return
+}
+
+func newLocalCache() (cache.Cache, error) {
 	memCache, err := cache.NewRistrettoCache(cache.RistrettoCacheConfig{
 		NumCounters: 100000,
 		Capacity:    1000000,
 		CostFunc:    func(value interface{}) int64 { return 1 },
 	}, codec.NewSonicCodec())
-	logx.Must(err)
-	s.LocalCache = memCache
-	return
+	if err != nil {
+		return nil, err
+	}
+	return memCache, nil
 }
 
 func (s *ServiceContext) SyncLocalCache() {
 	var bizTags []*model.LeafAlloc
 	db := s.DB.WithContext(context.Background())
 	syncCache := func(bizTags []*model.LeafAlloc) {
-		_ = s.LocalCache.Flush(context.Background())
+		memCache, err := newLocalCache()
+		if err != nil {
+			logx.Errorf("newLocalCache err:%s", err.Error())
+			return
+		}
 		count := 0
+		_ = memCache.Flush(context.Background())
 		for _, bizTag := range bizTags {
-			err := s.LocalCache.Set(context.Background(), bizTag.BizTag.String, bizTag, 0)
+			err := memCache.Set(context.Background(), bizTag.BizTag.String, bizTag, 0)
 			if err != nil {
 				logx.Errorf("bizTag:%s,sync local cache err:%s", bizTag.BizTag.String, err.Error())
 				continue
@@ -122,6 +136,11 @@ func (s *ServiceContext) SyncLocalCache() {
 			logx.Infof("bizTag:%s,sync local cache success", bizTag.BizTag.String)
 			count++
 		}
+		oldCache := s.LocalCache
+		s.LocalCacheLock.Lock()
+		s.LocalCache = memCache
+		s.LocalCacheLock.Unlock()
+		_ = oldCache.Flush(context.Background())
 		logx.Infof("sync local cache success count:%d, all:%d", count, len(bizTags))
 	}
 	err := db.Find(&bizTags).Error
@@ -143,4 +162,11 @@ func (s *ServiceContext) SyncLocalCache() {
 	localCron.Start()
 	logx.Infof("entryID:%d", entryID)
 	return
+}
+
+func (s *ServiceContext) GetLocalCache() cache.Cache {
+	s.LocalCacheLock.RLock()
+	localCache := s.LocalCache
+	s.LocalCacheLock.RUnlock()
+	return localCache
 }

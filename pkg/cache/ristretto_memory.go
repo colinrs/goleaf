@@ -2,6 +2,7 @@ package cache
 
 import (
 	"context"
+	"github.com/zeromicro/go-zero/core/logx"
 	"time"
 
 	"github.com/colinrs/goleaf/pkg/codec"
@@ -103,6 +104,7 @@ func (c *RistrettoCache) Load(ctx context.Context, loader SourceLoaders, key str
 	if err == nil {
 		return nil
 	}
+	logx.WithContext(ctx).Debugf("load from local cache err: %s, now from source key:%+v", err.Error(), key)
 	values, err := loader(ctx, []string{key})
 	if err == nil && len(values) > 0 {
 		value := values[0]
@@ -115,8 +117,9 @@ func (c *RistrettoCache) Load(ctx context.Context, loader SourceLoaders, key str
 			return err
 		}
 		go func() {
-			c.inner.Set(key, value, c.CostFunc(value))
+			c.inner.SetWithTTL(key, value, c.CostFunc(value), expire)
 		}()
+		return nil
 	}
 	return ErrFromSource
 }

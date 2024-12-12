@@ -38,7 +38,8 @@ func NewSegmentManager(ctx context.Context, svcCtx *svc.ServiceContext) SegmentM
 
 func (l *segmentManager) Segment(req *types.SegmentRequest) (*types.SegmentResponse, error) {
 	leafAlloc := &model.LeafAlloc{}
-	err := l.svcCtx.LocalCache.Get(l.ctx, req.BizTag, leafAlloc)
+	//err := l.svcCtx.LocalCache.Get(l.ctx, req.BizTag, leafAlloc)
+	err := l.svcCtx.GetLocalCache().Load(l.ctx, l.GetBizTagLoader, req.BizTag, leafAlloc, 0)
 	if err != nil {
 		logx.WithContext(l.ctx).Errorf("biz tag %s not exist from local cache", req.BizTag)
 		leafAlloc, _ = l.bizTagRepo.GetBizTagByName(l.db, req.BizTag)
@@ -56,4 +57,17 @@ func (l *segmentManager) Segment(req *types.SegmentRequest) (*types.SegmentRespo
 		Step:  leafAlloc.Step.Int64,
 	}
 	return resp, nil
+}
+
+func (l *segmentManager) GetBizTagLoader(ctx context.Context, keys []string) ([]interface{}, error) {
+	if len(keys) == 0 {
+		return nil, code.BizTagNotExist
+	}
+	bizTag := keys[0]
+	leafAlloc := &model.LeafAlloc{}
+	leafAlloc, _ = l.bizTagRepo.GetBizTagByName(l.db, bizTag)
+	if leafAlloc == nil {
+		return nil, code.BizTagNotExist
+	}
+	return []interface{}{leafAlloc}, nil
 }
