@@ -1,25 +1,35 @@
-# 描述
+# Overview
+Goleaf is a distributed ID generation system that supports:
 
-goleaf 分布式ID生成系统，基于 go-zero 实现，可根据Snowflake算法和号段模式生成唯一ID
+- Snowflake algorithm
+- Segment mode for generating unique IDs
 
-# 架构
+## Architecture Components
 
-![这是图片](https://telegraph-image-92x.pages.dev/file/76226f1bd62a0cf270ebc-a2eea87d05b0259094.png "Magic Gardens")
+![](https://telegraph-image-92x.pages.dev/file/76226f1bd62a0cf270ebc-a2eea87d05b0259094.png "Magic Gardens")
 
-- goleaf：核心服务，生成分布式id
-- sdk：goleaf 服务提供sdk 获取id
-- mysql：数据库，业务信息存储
-- etcd：获取node id，Snowflake算法使用
-- redis：缓存服务器
+- goleaf: Core service for generating distributed IDs
+- SDK: Client library for obtaining IDs
+- MySQL: Database for storing business information
+- etcd: Used for obtaining node ID (for Snowflake algorithm)
+- Redis: Caching service
 
-# 部署
+## Prerequisites for Deployment
 
-- 前置条件
-  - etcd 部署
-  - mysql 部署
-  - redis 部署
+- etcd deployment
+- MySQL deployment
+- Redis deployment
 
-## 数据库表创建
+## Database Setup
+A leaf_alloc table is created in MySQL with columns:
+
+- id: Auto-increment primary key
+- biz_tag: Business tag (up to 128 characters)
+- max_id: Maximum ID (default 1)
+- step: Increment step
+- description: Optional description
+- Timestamps for creation, update, and deletion
+
 ```sql
 create table leaf.leaf_alloc
 (
@@ -38,13 +48,13 @@ create index leaf_alloc_biz_tag_index
     on leaf.leaf_alloc (biz_tag);
 ```
 
-## 编译
+## Compilation and Startup
 
-- make build: 编译，二进制文件生成在 ./bin 目录下
-- 服务启动：./bin/goleaf -f etc/goleaf-api.yaml
+- Build command: make build (generates binary in ./bin)
+- Start service: ./bin/goleaf -f etc/goleaf-api.yaml
 
-# 工具
+## Development Tools
 
-- make swagger: 生成 swagger 文档
-- make all: api 文档格式化和生成go代码、swagger文档
-- make build：编译，二进制文件生成在 ./bin 目录下
+- make swagger: Generate Swagger documentation
+- make all: Format API docs, generate Go code and Swagger docs
+- make build: Compile and generate binary
