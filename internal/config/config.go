@@ -9,9 +9,10 @@ import (
 type Config struct {
 	rest.RestConf
 
-	DataBase *infra.DBConfig `json:"Database" yaml:"Database"`
-	Redis    redis.RedisConf `json:"Redis" yaml:"Redis"`
-	Etcd     EtcdConfig
+	DataBase              *infra.DBConfig `json:"Database" yaml:"Database"`
+	Redis                 redis.RedisConf `json:"Redis" yaml:"Redis"`
+	Etcd                  EtcdConfig
+	LocalCacheRefreshTime string // default 5m
 }
 
 type EtcdConfig struct {

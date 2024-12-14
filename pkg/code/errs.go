@@ -74,9 +74,7 @@ func WithMsg(msg string) Option {
 
 func WithErrors(errs ...*Error) Option {
 	return func(e *Err) {
-		for _, item := range errs {
-			e.Errors = append(e.Errors, item)
-		}
+		e.Errors = append(e.Errors, errs...)
 	}
 }
 

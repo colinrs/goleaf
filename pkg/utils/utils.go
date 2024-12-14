@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math/big"
 	"net"
+	"runtime/debug"
 )
 
 // 生成随机字符串，长度由用户指定
@@ -67,4 +68,8 @@ func GetOutboundIP() net.IP {
 
 	localAddr := conn.LocalAddr().(*net.UDPAddr)
 	return localAddr.IP
+}
+
+func Stack() string {
+	return string(debug.Stack())
 }

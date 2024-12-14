@@ -101,7 +101,6 @@ func (s *ServiceContext) InitLocalCache() {
 	memCache, err := newLocalCache()
 	logx.Must(err)
 	s.LocalCache = memCache
-	return
 }
 
 func newLocalCache() (cache.Cache, error) {
@@ -147,7 +146,7 @@ func (s *ServiceContext) SyncLocalCache() {
 	logx.Must(err)
 	syncCache(bizTags)
 	localCron := cron.New()
-	entryID, err := localCron.AddFunc("@every 5m", func() {
+	entryID, err := localCron.AddFunc(fmt.Sprintf("@every %s", s.Config.LocalCacheRefreshTime), func() {
 		logx.Infof("sync local cache")
 		db = s.DB.WithContext(context.Background())
 		bizTags = []*model.LeafAlloc{}
@@ -161,7 +160,6 @@ func (s *ServiceContext) SyncLocalCache() {
 	logx.Must(err)
 	localCron.Start()
 	logx.Infof("entryID:%d", entryID)
-	return
 }
 
 func (s *ServiceContext) GetLocalCache() cache.Cache {

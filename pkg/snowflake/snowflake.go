@@ -16,7 +16,6 @@ type Snowflake interface {
 }
 
 type snowflake struct {
-	ctx    context.Context
 	nodeID int64
 	idGen  *snowflakeExternal.Node
 }

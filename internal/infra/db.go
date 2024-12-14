@@ -11,7 +11,7 @@ import (
 )
 
 type DBConfig struct {
-	Host     string `json:"Host"`
+	Host     string `json:"host"`
 	Port     int    `json:"Port"`
 	UserName string `json:"UserName"`
 	Password string `json:"Password"`
@@ -24,13 +24,13 @@ type DBConfig struct {
 
 // Database ...
 func Database(mysqlConfig *DBConfig) (*gorm.DB, error) {
-	logx.Info("mysql {%#v}", mysqlConfig)
+	logx.Infof("mysql {%+v}", mysqlConfig)
 	dsn := fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8&parseTime=True&loc=Local",
 		mysqlConfig.UserName,
 		mysqlConfig.Password,
 		mysqlConfig.Host,
 		mysqlConfig.Database)
-	logx.Info("connect to mysql %s", dsn)
+	logx.Infof("connect to mysql %s", dsn)
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
 		Logger: gormLogger.Default.LogMode(gormLogger.Info),
 		Plugins: map[string]gorm.Plugin{

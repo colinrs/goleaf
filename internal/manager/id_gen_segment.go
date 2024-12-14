@@ -3,8 +3,6 @@ package manager
 import (
 	"context"
 	"github.com/colinrs/goleaf/internal/model"
-	"github.com/zeromicro/go-zero/core/logx"
-
 	"github.com/colinrs/goleaf/internal/repo"
 	"github.com/colinrs/goleaf/internal/svc"
 	"github.com/colinrs/goleaf/internal/types"
@@ -41,11 +39,7 @@ func (l *segmentManager) Segment(req *types.SegmentRequest) (*types.SegmentRespo
 	//err := l.svcCtx.LocalCache.Get(l.ctx, req.BizTag, leafAlloc)
 	err := l.svcCtx.GetLocalCache().Load(l.ctx, l.GetBizTagLoader, req.BizTag, leafAlloc, 0)
 	if err != nil {
-		logx.WithContext(l.ctx).Errorf("biz tag %s not exist from local cache", req.BizTag)
-		leafAlloc, _ = l.bizTagRepo.GetBizTagByName(l.db, req.BizTag)
-		if leafAlloc == nil {
-			return nil, code.BizTagNotExist
-		}
+		return nil, code.BizTagNotExist
 	}
 	maxID := l.idGenRepo.GetSegmentMaxID(l.db, req.BizTag)
 	if maxID == 0 {
@@ -64,8 +58,7 @@ func (l *segmentManager) GetBizTagLoader(ctx context.Context, keys []string) ([]
 		return nil, code.BizTagNotExist
 	}
 	bizTag := keys[0]
-	leafAlloc := &model.LeafAlloc{}
-	leafAlloc, _ = l.bizTagRepo.GetBizTagByName(l.db, bizTag)
+	leafAlloc, _ := l.bizTagRepo.GetBizTagByName(l.db, bizTag)
 	if leafAlloc == nil {
 		return nil, code.BizTagNotExist
 	}

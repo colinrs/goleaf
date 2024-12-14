@@ -26,3 +26,5 @@ Redis:
 Etcd:
   Endpoints:
     - 192.168.0.100:2379
+
+LocalCacheRefreshTime: 5m

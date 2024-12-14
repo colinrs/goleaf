@@ -11,4 +11,5 @@ var (
 	BizTagAlreadyExist = &Err{HTTPCode: http.StatusOK, Code: 20003, Msg: "业务已存在"}
 	BizTagNotExist     = &Err{HTTPCode: http.StatusOK, Code: 20004, Msg: "业务不存在"}
 	EtcdKeyNotExist    = &Err{HTTPCode: http.StatusOK, Code: 20005, Msg: "Etcd key 不存在"}
+	HTTPClientErr      = &Err{HTTPCode: http.StatusOK, Code: 20006, Msg: "http client error"}
 )
