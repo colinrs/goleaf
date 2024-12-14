@@ -118,33 +118,9 @@ func newLocalCache() (cache.Cache, error) {
 func (s *ServiceContext) SyncLocalCache() {
 	var bizTags []*model.LeafAlloc
 	db := s.DB.WithContext(context.Background())
-	syncCache := func(bizTags []*model.LeafAlloc) {
-		memCache, err := newLocalCache()
-		if err != nil {
-			logx.Errorf("newLocalCache err:%s", err.Error())
-			return
-		}
-		count := 0
-		_ = memCache.Flush(context.Background())
-		for _, bizTag := range bizTags {
-			err := memCache.Set(context.Background(), bizTag.BizTag.String, bizTag, 0)
-			if err != nil {
-				logx.Errorf("bizTag:%s,sync local cache err:%s", bizTag.BizTag.String, err.Error())
-				continue
-			}
-			logx.Infof("bizTag:%s,sync local cache success", bizTag.BizTag.String)
-			count++
-		}
-		oldCache := s.LocalCache
-		s.LocalCacheLock.Lock()
-		s.LocalCache = memCache
-		s.LocalCacheLock.Unlock()
-		_ = oldCache.Flush(context.Background())
-		logx.Infof("sync local cache success count:%d, all:%d", count, len(bizTags))
-	}
 	err := db.Find(&bizTags).Error
 	logx.Must(err)
-	syncCache(bizTags)
+	s.syncCache(bizTags)
 	localCron := cron.New()
 	entryID, err := localCron.AddFunc(fmt.Sprintf("@every %s", s.Config.LocalCacheRefreshTime), func() {
 		logx.Infof("sync local cache")
@@ -155,11 +131,36 @@ func (s *ServiceContext) SyncLocalCache() {
 			logx.Errorf("sync local cache err:%s", err.Error())
 			return
 		}
-		syncCache(bizTags)
+		s.syncCache(bizTags)
 	})
 	logx.Must(err)
 	localCron.Start()
 	logx.Infof("entryID:%d", entryID)
+}
+
+func (s *ServiceContext) syncCache(bizTags []*model.LeafAlloc) {
+	memCache, err := newLocalCache()
+	if err != nil {
+		logx.Errorf("newLocalCache err:%s", err.Error())
+		return
+	}
+	count := 0
+	_ = memCache.Flush(context.Background())
+	for _, bizTag := range bizTags {
+		err := memCache.Set(context.Background(), bizTag.BizTag.String, bizTag, 0)
+		if err != nil {
+			logx.Errorf("bizTag:%s,sync local cache err:%s", bizTag.BizTag.String, err.Error())
+			continue
+		}
+		logx.Infof("bizTag:%s,sync local cache success", bizTag.BizTag.String)
+		count++
+	}
+	oldCache := s.LocalCache
+	s.LocalCacheLock.Lock()
+	s.LocalCache = memCache
+	s.LocalCacheLock.Unlock()
+	_ = oldCache.Flush(context.Background())
+	logx.Infof("sync local cache success count:%d, all:%d", count, len(bizTags))
 }
 
 func (s *ServiceContext) GetLocalCache() cache.Cache {

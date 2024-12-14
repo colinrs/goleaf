@@ -73,15 +73,6 @@ func (i *idGenClient) sendToChannelLoop() {
 	}
 }
 
-func (i *idGenClient) logStat() {
-	ticker := time.NewTicker(5 * time.Second)
-	for {
-		<-ticker.C
-		logx.Debugf("goleaf idGenClient lens: %d, last id update: %d",
-			len(i.ids), i.stat.lastIdUpdate.Load())
-	}
-}
-
 func (i *idGenClient) sendToChannel() error {
 	nextIds, err := i.getNextIds()
 	if err != nil {
@@ -94,6 +85,15 @@ func (i *idGenClient) sendToChannel() error {
 	}
 	i.stat.lastIdUpdate.Store(time.Now().Unix())
 	return nil
+}
+
+func (i *idGenClient) logStat() {
+	ticker := time.NewTicker(5 * time.Second)
+	for {
+		<-ticker.C
+		logx.Debugf("goleaf idGenClient lens: %d, last id update: %d",
+			len(i.ids), i.stat.lastIdUpdate.Load())
+	}
 }
 
 func (i *idGenClient) getNextIds() ([]int64, error) {
